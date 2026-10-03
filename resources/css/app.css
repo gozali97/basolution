@@ -1,0 +1,120 @@
+@import 'tailwindcss';
+/* In the render-blocking stylesheet (not imported from JS) so [data-aos] is hidden from the first paint and has a start state to fade from. */
+@import 'aos/dist/aos.css';
+
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* White base with the brand green #76c457 (400). It is only 2.1:1 on white, so it is a fill under brand-950 text,
+   never text itself and never under white text. Links and icons use 700. */
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --color-brand-50: #f5fbf3;
+    --color-brand-100: #eaf6e6;
+    --color-brand-200: #ddf0d5;
+    --color-brand-300: #bbe2ab;
+    --color-brand-400: #76c457;
+    --color-brand-500: #589f3c;
+    --color-brand-700: #366722;
+    --color-brand-800: #2a501b;
+    --color-brand-900: #203c15;
+    --color-brand-950: #15250e;
+}
+
+@layer base {
+    :focus-visible {
+        outline: 3px solid var(--color-brand-700);
+        outline-offset: 3px;
+    }
+}
+
+/* Safety net: if app.js never runs (aos-ready never set), reveal content after 2s instead of leaving it hidden. */
+html:not(.aos-ready) [data-aos] {
+    animation: aos-fallback 0s 2s forwards;
+}
+
+@keyframes aos-fallback {
+    to { opacity: 1; transform: none; }
+}
+
+[data-aos]:focus-within {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+/* Opposing curved corners carry the image treatment from the Navytech reference. */
+.agency-image {
+    border-radius: clamp(2rem, 8vw, 7rem) .5rem clamp(2rem, 8vw, 7rem) .5rem;
+    overflow: hidden;
+    background: var(--color-brand-100);
+}
+
+.hero-gallery {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.hero-gallery-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 600ms, visibility 600ms;
+}
+
+.hero-gallery-slide[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.on-dark :focus-visible {
+    outline-color: var(--color-brand-300);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-gallery-slide { transition: none; }
+}
+
+@utility container-x {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+}
+
+@utility section-space {
+    @apply py-16 sm:py-24;
+}
+
+@utility btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-3 rounded-lg px-6 py-3 text-sm font-semibold transition-colors;
+}
+
+/* Brand-950 on #76c457 is 7.3:1; white on it would fail at 2.1:1. */
+@utility btn-primary {
+    @apply bg-brand-700 text-white hover:bg-brand-800;
+}
+
+@utility btn-ghost {
+    @apply border border-brand-700 text-brand-900 hover:bg-brand-50;
+}
+
+/* Rich editor output; replaces @tailwindcss/typography for the few tags Filament emits. */
+@utility prose-content {
+    @apply space-y-4 leading-relaxed text-slate-700;
+
+    & h2 { @apply pt-4 text-2xl font-bold text-brand-950; }
+    & h3 { @apply pt-2 text-xl font-semibold text-brand-950; }
+    & ul { @apply list-disc space-y-1 pl-6; }
+    & ol { @apply list-decimal space-y-1 pl-6; }
+    & a { @apply font-semibold text-brand-700 underline; }
+    & blockquote { @apply border-l-4 border-brand-300 pl-4 italic; }
+    & img { @apply rounded-2xl; }
+}
