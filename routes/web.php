@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\Setting;
 use App\Models\TeamMember;
 use App\Models\Testimonial;
+use App\Support\Seo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -90,7 +91,7 @@ Route::post('/kontak', function (Request $request) {
 })->middleware('throttle:5,1')->name('contact.send');
 
 Route::get('/sitemap.xml', fn () => response()->view('sitemap', [
-    'urls' => collect(['home', 'about', 'services.index', 'projects.index', 'contact'])->map(fn ($r) => route($r))
-        ->merge(Service::active()->get()->map(fn ($s) => route('services.show', $s)))
-        ->merge(Project::active()->get()->map(fn ($p) => route('projects.show', $p))),
+    'urls' => collect(['home', 'about', 'services.index', 'projects.index', 'contact'])->map(fn ($r) => ['loc' => Seo::url(route($r, [], false))])
+        ->merge(Service::active()->get()->map(fn ($s) => ['loc' => Seo::url(route('services.show', $s, false)), 'lastmod' => $s->updated_at?->toAtomString()]))
+        ->merge(Project::active()->get()->map(fn ($p) => ['loc' => Seo::url(route('projects.show', $p, false)), 'lastmod' => $p->updated_at?->toAtomString()])),
 ])->header('Content-Type', 'application/xml'))->name('sitemap');

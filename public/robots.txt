@@ -1,2 +1,5 @@
 User-agent: *
 Disallow: /admin
+Disallow: /portal
+
+Sitemap: https://basolution.web.id/sitemap.xml

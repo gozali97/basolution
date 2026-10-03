@@ -2,8 +2,9 @@
 @php
     $siteName = $site['site_name'] ?? config('app.name');
     $logo = \App\Models\Setting::logoUrl();
-    $pageTitle = $title ? "{$title} | {$siteName}" : trim($siteName.' - '.($site['tagline'] ?? ''), ' -');
-    $description ??= $site['meta_description'] ?? '';
+    $pageTitle = $title ? "{$title} | {$siteName}" : "{$siteName} | Software House & Pengembangan Aplikasi";
+    $description = \App\Support\Seo::description($site, $description);
+    $canonical = \App\Support\Seo::url();
     $heroImage = data_get($site, 'hero_images.0.image');
     $image ??= filled($heroImage) ? Storage::url($heroImage) : null;
     $nav = ['home' => 'Beranda', 'about' => 'Tentang', 'services.index' => 'Layanan', 'projects.index' => 'Portofolio', 'contact' => 'Kontak'];
@@ -17,15 +18,24 @@
     <title>{{ $pageTitle }}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=ba">
     <meta name="description" content="{{ $description }}">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $canonical }}">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    @if (config('seo.google_site_verification'))
+        <meta name="google-site-verification" content="{{ config('seo.google_site_verification') }}">
+    @endif
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $siteName }}">
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $description }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonical }}">
+    <meta property="og:locale" content="id_ID">
     @if ($image)
-        <meta property="og:image" content="{{ $image }}">
+        <meta property="og:image" content="{{ \App\Support\Seo::absoluteAsset($image) }}">
     @endif
+    <meta name="twitter:card" content="{{ $image ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $description }}">
+    <script type="application/ld+json">{!! json_encode(\App\Support\Seo::structuredData($site, $pageTitle, $description, $logo, $image), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
     <meta name="theme-color" content="#ffffff">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet">
